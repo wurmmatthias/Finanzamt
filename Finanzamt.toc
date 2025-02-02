@@ -1,0 +1,12 @@
+## Interface: 100007
+## Title: Finanzamt
+## Notes: Überprüft, ob alle Gildenmitglieder in diesem Monat mindestens 10.000 Gold in die Gildenbank eingezahlt haben und stellt eine GUI zur Verfügung.
+## Author: Jaluna / Matthias
+## Version: 0.1.0
+
+Libs/LibDataBroker-1.1/LibDataBroker-1.1.lua
+Libs/LibDBIcon-1.0/LibDBIcon-1.0.lua
+
+## SavedVariables: FinanzamtDB
+
+Finanzamt.lua
