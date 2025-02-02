@@ -164,6 +164,51 @@ for i = 1, 20 do -- Assuming a maximum of 20 guild members displayed
     lines[i] = line
 end
 
+-- Create a warning window for sending a message
+local warnFrame = CreateFrame("Frame", "FinanzamtWarnFrame", UIParent, "BasicFrameTemplateWithInset")
+warnFrame:SetSize(300, 120)
+warnFrame:SetPoint("CENTER")
+warnFrame:SetFrameStrata("DIALOG")  -- Ensure it appears on top
+warnFrame:Hide()  -- Hide it initially
+
+warnFrame.title = warnFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+warnFrame.title:SetPoint("CENTER", warnFrame.TitleBg, "CENTER", 0, 0)
+warnFrame.title:SetText("Mahnung senden")
+
+-- Create an EditBox for entering the recipient's character name
+local recipientEditBox = CreateFrame("EditBox", "FinanzamtWarnRecipient", warnFrame, "InputBoxTemplate")
+recipientEditBox:SetSize(200, 30)
+recipientEditBox:SetPoint("TOP", warnFrame, "TOP", 0, -40)
+recipientEditBox:SetAutoFocus(false)
+recipientEditBox:SetText("Charaktername")  -- Default text; you can clear or change this as needed
+
+-- Create the Send button
+local sendButton = CreateFrame("Button", "FinanzamtWarnSendButton", warnFrame, "GameMenuButtonTemplate")
+sendButton:SetSize(120, 25)
+sendButton:SetPoint("BOTTOM", warnFrame, "BOTTOM", 40, 20)
+sendButton:SetText("Senden")
+sendButton:SetScript("OnClick", function(self)
+    local recipient = recipientEditBox:GetText()
+    if recipient and recipient ~= "" then
+        local message = "Dies ist eine Mahnung! Der Monatsbeitrag von 10.000 Gold für die Gilde Raufasertapete ist noch nicht erfolgt! Bitte überweisen Sie das nötige Gold zeitnah!"  -- Preset message text
+        -- Send the message as a whisper
+        SendChatMessage(message, "WHISPER", nil, recipient)
+        print("Mahnung an " .. recipient .. " gesendet.")
+        warnFrame:Hide()
+    else
+        print("Bitte geben Sie einen Empfängernamen ein.")
+    end
+end)
+
+-- Optional: Create a Cancel button to close the warning window without sending
+local cancelButton = CreateFrame("Button", "FinanzamtWarnCancelButton", warnFrame, "GameMenuButtonTemplate")
+cancelButton:SetSize(120, 25)
+cancelButton:SetPoint("RIGHT", sendButton, "LEFT", 20, 0)
+cancelButton:SetText("Abbrechen")
+cancelButton:SetScript("OnClick", function(self)
+    warnFrame:Hide()
+end)
+
 -- Stores deposits per player
 local guildDeposits = {}
 
@@ -416,4 +461,18 @@ itemTransButton:SetScript("OnClick", function()
         UpdateItemTransFrame()  -- refresh the transaction list from storage
         ItemTransFrame:Show()
     end
+end)
+
+-- Create the "Mahnung senden" button on the right-hand side of the main frame
+local warnButton = CreateFrame("Button", "FinanzamtWarnButton", frame, "GameMenuButtonTemplate")
+warnButton:SetSize(100, 25)
+-- Position the button on the right-hand side of the main frame (adjust the offsets as needed)
+warnButton:SetPoint("RIGHT", frame, "RIGHT", -20, 0)
+warnButton:SetText("Mahnungen")
+warnButton:SetNormalFontObject("GameFontNormal")
+
+-- Optionally, add an OnClick handler for the button
+warnButton:SetScript("OnClick", function(self)
+    warnFrame:Show()
+    recipientEditBox:SetFocus()
 end)
