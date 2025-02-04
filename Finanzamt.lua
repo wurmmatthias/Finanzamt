@@ -175,39 +175,73 @@ warnFrame.title = warnFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight"
 warnFrame.title:SetPoint("CENTER", warnFrame.TitleBg, "CENTER", 0, 0)
 warnFrame.title:SetText("Mahnung senden")
 
--- Create an EditBox for entering the recipient's character name
-local recipientEditBox = CreateFrame("EditBox", "FinanzamtWarnRecipient", warnFrame, "InputBoxTemplate")
-recipientEditBox:SetSize(200, 30)
-recipientEditBox:SetPoint("TOP", warnFrame, "TOP", 0, -40)
-recipientEditBox:SetAutoFocus(false)
-recipientEditBox:SetText("Charaktername")  -- Default text; you can clear or change this as needed
+-- Create a dropdown menu for selecting a recipient
+local recipientDropdown = CreateFrame("Frame", "FinanzamtWarnRecipientDropdown", warnFrame, "UIDropDownMenuTemplate")
+recipientDropdown:SetPoint("TOP", warnFrame, "TOP", 0, -40)
+UIDropDownMenu_SetWidth(recipientDropdown, 200)
+UIDropDownMenu_SetText(recipientDropdown, "Empfänger wählen")
+
+-- Initialization function for the dropdown menu
+local function InitializeRecipientDropdown(self, level, menuList)
+    local info = UIDropDownMenu_CreateInfo()
+    local numMembers = GetNumGuildMembers()  -- Retrieves the number of guild members
+    for i = 1, numMembers do
+        local name, rank, rankIndex, memberLevel, class, zone, note, officernote, online, status, classFileName, achievementPoints = GetGuildRosterInfo(i)
+        if name then
+            local fullName = name
+            if not string.find(name, "-") then
+                fullName = name .. "-" .. GetRealmName()
+            end
+            info.text = fullName
+            info.value = fullName
+            info.func = function(self)
+                UIDropDownMenu_SetSelectedValue(recipientDropdown, self.value)
+                UIDropDownMenu_SetText(recipientDropdown, self.value)
+            end
+            UIDropDownMenu_AddButton(info, level)
+        end
+    end
+end
+
+UIDropDownMenu_Initialize(recipientDropdown, InitializeRecipientDropdown)
 
 -- Create the Send button
 local sendButton = CreateFrame("Button", "FinanzamtWarnSendButton", warnFrame, "GameMenuButtonTemplate")
 sendButton:SetSize(120, 25)
-sendButton:SetPoint("BOTTOM", warnFrame, "BOTTOM", 40, 20)
+sendButton:SetPoint("BOTTOM", warnFrame, "BOTTOM", 55, 20)
 sendButton:SetText("Senden")
+sendButton:SetNormalFontObject("GameFontNormal")
 sendButton:SetScript("OnClick", function(self)
-    local recipient = recipientEditBox:GetText()
+    local recipient = UIDropDownMenu_GetSelectedValue(recipientDropdown)
     if recipient and recipient ~= "" then
-        local message = "Dies ist eine Mahnung! Der Monatsbeitrag von 10.000 Gold für die Gilde Raufasertapete ist noch nicht erfolgt! Bitte überweisen Sie das nötige Gold zeitnah!"  -- Preset message text
-        -- Send the message as a whisper
-        SendChatMessage(message, "WHISPER", nil, recipient)
-        print("Mahnung an " .. recipient .. " gesendet.")
+        local message = "Dies ist eine Mahnung! Der Monatsbeitrag von 10.000 Gold für die Gilde Raufasertapete ist noch nicht erfolgt! Bitte überweisen Sie das nötige Gold zeitnah!"
+        local subject = "Mahnung"
+        
+        -- Check if the MailFrame is open (which indicates you are at a mailbox)
+        if MailFrame and MailFrame:IsShown() then
+            SendMail(recipient, subject, message)
+            print("Mahnung an " .. recipient .. " per Mail gesendet.")
+        else
+            -- Send a whisper if the recipient is online.
+            SendChatMessage(message, "WHISPER", nil, recipient)
+            print("Mahnung an " .. recipient .. " per Whisper gesendet.")
+        end
+        
         warnFrame:Hide()
     else
-        print("Bitte geben Sie einen Empfängernamen ein.")
+        print("Bitte wählen Sie einen Empfänger aus.")
     end
 end)
 
--- Optional: Create a Cancel button to close the warning window without sending
+-- Create a Cancel button to close the window without sending
 local cancelButton = CreateFrame("Button", "FinanzamtWarnCancelButton", warnFrame, "GameMenuButtonTemplate")
 cancelButton:SetSize(120, 25)
-cancelButton:SetPoint("RIGHT", sendButton, "LEFT", 20, 0)
+cancelButton:SetPoint("RIGHT", sendButton, "LEFT", 10, 0)
 cancelButton:SetText("Abbrechen")
 cancelButton:SetScript("OnClick", function(self)
     warnFrame:Hide()
 end)
+
 
 -- Stores deposits per player
 local guildDeposits = {}
@@ -474,5 +508,5 @@ warnButton:SetNormalFontObject("GameFontNormal")
 -- Optionally, add an OnClick handler for the button
 warnButton:SetScript("OnClick", function(self)
     warnFrame:Show()
-    recipientEditBox:SetFocus()
+    UIDropDownMenu_Initialize(recipientDropdown, InitializeRecipientDropdown) -- Refresh the list in case the guild roster has changed.
 end)
