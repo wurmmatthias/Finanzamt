@@ -415,6 +415,8 @@ local function UpdateTransactionHistory()
 end
 
 
+
+
 SLASH_FINANZAMTRESET1 = "/finreset"
 SlashCmdList["FINANZAMTRESET"] = function(msg)
     FinanzamtDB.transactions = {}
@@ -456,22 +458,42 @@ end
 
 frame:SetScript("OnShow", DisplaySavedMoney)
 
--- MODIFIED FUNCTION:
 -- Update the ItemTransFrame using the saved transaction history from FinanzamtDB.
 local function UpdateItemTransFrame()
-    -- Clear all previous transaction lines
-    for i = 1, #itemLines do
-        itemLines[i].text:SetText("")
+    local transactions = FinanzamtDB.transactions or {}
+    local numTransactions = #transactions
+
+    -- If we have fewer lines than transactions, create new lines dynamically.
+    if #itemLines < numTransactions then
+        for i = #itemLines + 1, numTransactions do
+            local line = CreateFrame("Button", nil, itemContent)
+            line:SetSize(540, 20)
+            line:SetPoint("TOPLEFT", itemContent, "TOPLEFT", 10, -20 * (i - 1))
+            
+            line.text = line:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+            line.text:SetPoint("LEFT")
+            line.text:SetSize(540, 20)
+            line.text:SetJustifyH("LEFT")
+            itemLines[i] = line
+        end
     end
 
-    local transactions = FinanzamtDB.transactions or {}
-
-    -- Populate the itemLines with the transaction data
+    -- Update (or show/hide) each line according to the transaction data.
     for i, transaction in ipairs(transactions) do
         if itemLines[i] then
             itemLines[i].text:SetText(transaction)
+            itemLines[i]:Show()
         end
     end
+
+    -- Hide any extra lines that aren’t used.
+    for i = numTransactions + 1, #itemLines do
+        itemLines[i]:Hide()
+    end
+
+    -- Adjust the height of the scroll child (itemContent) based on the number of transactions.
+    local newHeight = math.max(380, numTransactions * 20 + 20)
+    itemContent:SetHeight(newHeight)
 end
 
 -- Button to manually refresh guild bank data
