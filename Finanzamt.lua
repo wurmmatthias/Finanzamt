@@ -291,29 +291,19 @@ local function UpdateGuildBankDeposits()
 
     guildDeposits = {}
 
-    for tab = 1, GetNumGuildBankTabs() do
-        local numTrans = GetNumGuildBankTransactions(tab)
-        for i = 1, numTrans do
-            local numReturn = select("#", GetGuildBankTransaction(tab, i))
-            local transactionType, playerName, arg3, arg4, arg5 = GetGuildBankTransaction(tab, i)
+    for transactionNumber = 1, GetNumGuildBankMoneyTransactions() do
+        local transactionType, playerName, amount, years, months, days, hours = GetGuildBankMoneyTransaction(transactionNumber)
 
-            print("DEBUG: Tab", tab, "Transaktion", i, "Typ:", transactionType, "Spieler:", playerName, "ReturnCount:", numReturn, "arg3:", arg3, "arg4:", arg4, "arg5:", arg5)
+        print("DEBUG: Transaktion", transactionNumber, "Typ:", transactionType, "Spieler:", playerName, "Amount:", amount, "years:", years, "months:", months, "days:", days, "hours:", hours)
 
-            local moneyValue = nil
-
-            if transactionType == "deposit" then
-                if numReturn == 3 then
-                    moneyValue = arg3
-                else
-                    moneyValue = arg5
-                end
-
-                if moneyValue and moneyValue > 0 then
-                    guildDeposits[playerName] = (guildDeposits[playerName] or 0) + moneyValue
-                end
+        if transactionType == "deposit" then
+            if amount and amount > 0 then
+                guildDeposits[playerName] = (guildDeposits[playerName] or 0) + amount
             end
         end
+        
     end
+
 
     -- Umrechnung von Kupfer zu Gold (1 Gold = 10.000 Kupfer)
     for player, amount in pairs(guildDeposits) do
