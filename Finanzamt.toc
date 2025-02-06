@@ -10,3 +10,8 @@ Libs/LibDBIcon-1.0/LibDBIcon-1.0.lua
 ## SavedVariables: FinanzamtDB
 
 Finanzamt.lua
+Config.lua
+Core.lua
+UI.lua
+Events.lua
+Commands.lua
