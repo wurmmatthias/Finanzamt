@@ -7,7 +7,8 @@ finanzamtName, Finanzamt = ...
 
 -- Create a saved variable to store minimap settings
 FinanzamtDB = FinanzamtDB or {}
-
+FinanzamtDB.totalMoney = FinanzamtDB.totalMoney or {}
+FinanzamtDB.MoneyTransactions = FinanzamtDB.MoneyTransactions or {}
 
 -- Variable declaration
 Finanzamt.lines = {}
@@ -24,7 +25,7 @@ Finanzamt.UI.GB_Silver = {} -- Variable for item content frame
 Finanzamt.UI.GB_Copper = {} -- Variable for item content frame
 
 
-print("Finanzamt loaded!")
+print("DEBUG: Finanzamt loaded!")
 
 
 

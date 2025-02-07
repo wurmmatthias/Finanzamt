@@ -8,8 +8,24 @@ function Finanzamt:CheckGuildBankMoneyTransaction()
     if GuildBankFrame and GuildBankFrame:IsShown() then
         local transactionValue = GetGuildBankMoney() - FinanzamtDB.totalMoney
         if transactionValue > 0 then
-            print("Es wurden ", transactionValue, " von ", UnitName("player"), " in die Gildenbank eingezhalt.")
-        end     
+            local moneyTransaction = {}
+            moneyTransaction.PlayerGUID = UnitGUID("player")
+            moneyTransaction.Action = "Deposit"
+            moneyTransaction.Value = transactionValue
+            moneyTransaction.TimeStamp = GetServerTime()
+
+            table.insert(FinanzamtDB.MoneyTransactions, moneyTransaction)
+            print("DEBUG: Es wurden ", transactionValue, " von ", UnitFullName("player"), " in die Gildenbank eingezahlt.")
+        else
+            local moneyTransaction = {}
+            moneyTransaction.PlayerGUID = UnitGUID("player")
+            moneyTransaction.Action = "Withdrawal"
+            moneyTransaction.Value = transactionValue
+            moneyTransaction.TimeStamp = GetServerTime()
+
+            table.insert(FinanzamtDB.MoneyTransactions, moneyTransaction)
+            print("DEBUG: Es wurden ", transactionValue, " von ", UnitFullName("player"), " aus der Gildenbank abgehoben.")
+        end    
         Finanzamt:UpdateGuildBankMoneyDisplay()
     end
 end
