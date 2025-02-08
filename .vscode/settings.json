@@ -16,7 +16,9 @@
         "WOW_PROJECT_ID",
         "WOW_PROJECT_MAINLINE",
         "GuildBankFrameTab3",
-        "GuildBankFrameTab1"
+        "GuildBankFrameTab1",
+        "hash_SlashCmdList",
+        "DEFAULT_CHAT_FRAME"
     ],
     "Lua.runtime.version": "Lua 5.1",
     "Lua.runtime.builtin": {

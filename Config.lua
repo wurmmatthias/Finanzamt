@@ -1,5 +1,5 @@
 ---@type _, Finanzamt
-local _, Finanzamt = ... -- Get Addon Namespace
+local Finanzamt = LibStub("AceAddon-3.0"):GetAddon("Finanzamt") -- Get Addon Namespace
 
 Finanzamt.Config = {
     defaultConfig = true

@@ -1,8 +1,8 @@
 ---@type _, Finanzamt
-local _, Finanzamt = ... -- Get Addon Namespace
+local Finanzamt = LibStub("AceAddon-3.0"):GetAddon("Finanzamt") -- Get Addon Namespace
 
 SLASH_FINANZAMTRESET1 = "/finreset"
 SlashCmdList["FINANZAMTRESET"] = function(msg)
-    FinanzamtDB.transactions = {}
+    Finanzamt.db.profile.transactions = {}
     print("[Finanzamt] Item Transaktionen zurückgesetzt. Historie geleert.")
 end

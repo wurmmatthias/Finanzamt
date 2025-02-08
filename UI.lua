@@ -1,37 +1,7 @@
 ---@type _, Finanzamt
-local _, Finanzamt = ... -- Get Adddon Namespace
+local Finanzamt = LibStub("AceAddon-3.0"):GetAddon("Finanzamt") -- Get Addon Namespace
 
--- Load required libraries
-local LDB = LibStub("LibDataBroker-1.1")
-local LDBIcon = LibStub("LibDBIcon-1.0")
 
--- Create a data broker object for the minimap icon
-local minimapButton = LDB:NewDataObject("Finanzamt", {
-    type = "launcher",
-    text = "Finanzamt",
-    icon = "Interface\\AddOns\\Finanzamt\\adler.tga", -- Change this to any icon path you prefer
-    OnClick = function(_, button)
-        if button == "LeftButton" then
-            if Finanzamt.UI.Main and Finanzamt.UI.Main:IsShown() then
-                Finanzamt.UI.Main:Hide()
-                Finanzamt.UI.Main:Hide()
-            else
-                Finanzamt.UI.Main:Show()
-                print("Letzter gespeicherter Wert (in Kupfer):", FinanzamtDB.totalMoney)
-            end
-        elseif button == "RightButton" then
-            print("Finanzamt Addon - Optionen in Kürze")
-        end
-    end,
-    OnTooltipShow = function(tooltip)
-        tooltip:AddLine("Finanzamt Overlay")
-        tooltip:AddLine("Linksklick zum öffnen", 1, 1, 1)
-        tooltip:AddLine("Rechtsklick für Einstellungen", 1, 1, 1)
-    end
-})
-
--- Register the minimap button
-LDBIcon:Register("Finanzamt", minimapButton, FinanzamtDB)
 
 -- Create the main frame for the Add-On
 local frame = CreateFrame("Frame", "FinanzamtFrame", UIParent, "BasicFrameTemplateWithInset")
@@ -41,6 +11,7 @@ frame.title = frame:CreateFontString(nil, "OVERLAY")
 frame.title:SetFontObject("GameFontHighlight")
 frame.title:SetPoint("CENTER", frame.TitleBg, "CENTER", 0, 0)
 frame.title:SetText("Raufasertapete - Finanzamt")
+frame:SetFrameStrata("HIGH")
 
 -- Make the main frame movable
 frame:SetMovable(true)
@@ -48,6 +19,7 @@ frame:EnableMouse(true)
 frame:RegisterForDrag("LeftButton")
 frame:SetScript("OnDragStart", function(self) self:StartMoving() end)
 frame:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
+frame:SetScript("OnShow", Finanzamt.DisplaySavedMoney)
 
 -- Button to open the Item Transaktionen window
 local itemTransButton = CreateFrame("Button", "FinanzamtItemTransButton", frame, "GameMenuButtonTemplate")
@@ -154,7 +126,6 @@ for i = 1, 30 do
     itemLines[i] = line
 end
 
-
 for i = 1, 20 do -- Assuming a maximum of 20 guild members displayed
     local line = CreateFrame("Button", nil, content)
     line:SetSize(240, 20)
@@ -209,7 +180,6 @@ UIDropDownMenu_SetWidth(recipientDropdown, 200)
 UIDropDownMenu_SetText(recipientDropdown, "Empfänger wählen")
 
 UIDropDownMenu_Initialize(recipientDropdown, InitializeRecipientDropdown)
-
 
 -- Create the Send button
 local sendButton = CreateFrame("Button", "FinanzamtWarnSendButton", warnFrame, "GameMenuButtonTemplate")
@@ -270,7 +240,7 @@ local function UpdateItemTransFrame()
         itemLines[i].text:SetText("")
     end
 
-    local transactions = FinanzamtDB.transactions or {}
+    local transactions = Finanzamt.db.profile.transactions or {}
     local numTransactions = #transactions
 
     -- If we have fewer lines than transactions, create new lines dynamically.

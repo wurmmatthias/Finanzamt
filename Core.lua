@@ -1,12 +1,11 @@
----@class Finanzamt
-local Finanzamt -- Namespace
+---@class Finanzamt : AceAddon, AceConsole-3.0, AceEvent-3.0
+local Finanzamt = LibStub("AceAddon-3.0"):GetAddon("Finanzamt") -- Get Addon Namespace
 
-_, Finanzamt = ...
 
 -- Subscribe to GUILDBANK_UPDATE_MONEY
 function Finanzamt:CheckGuildBankMoneyTransaction()
     if GuildBankFrame and GuildBankFrame:IsShown() then
-        local transactionValue = GetGuildBankMoney() - FinanzamtDB.totalMoney
+        local transactionValue = GetGuildBankMoney() - Finanzamt.db.profile.totalMoney
         if transactionValue > 0 then
             local moneyTransaction = {}
             moneyTransaction.PlayerGUID = UnitGUID("player")
@@ -14,7 +13,7 @@ function Finanzamt:CheckGuildBankMoneyTransaction()
             moneyTransaction.Value = transactionValue
             moneyTransaction.TimeStamp = GetServerTime()
 
-            table.insert(FinanzamtDB.MoneyTransactions, moneyTransaction)
+            table.insert(Finanzamt.db.profile.MoneyTransactions, moneyTransaction)
             print("DEBUG: Es wurden ", transactionValue, " von ", UnitFullName("player"), " in die Gildenbank eingezahlt.")
         else
             local moneyTransaction = {}
@@ -23,7 +22,7 @@ function Finanzamt:CheckGuildBankMoneyTransaction()
             moneyTransaction.Value = transactionValue
             moneyTransaction.TimeStamp = GetServerTime()
 
-            table.insert(FinanzamtDB.MoneyTransactions, moneyTransaction)
+            table.insert(Finanzamt.db.profile.MoneyTransactions, moneyTransaction)
             print("DEBUG: Es wurden ", transactionValue, " von ", UnitFullName("player"), " aus der Gildenbank abgehoben.")
         end    
         Finanzamt:UpdateGuildBankMoneyDisplay()
@@ -60,7 +59,7 @@ function Finanzamt:UpdateGuildBankMoneyDisplay()
     if not totalMoney then return end
     
     -- Save the money value to the saved variable:
-    FinanzamtDB.totalMoney = totalMoney
+    Finanzamt.db.profile.totalMoney = totalMoney
 
     local goldAmount   = math.floor(totalMoney / 10000)
     local silverAmount = math.floor((totalMoney % 10000) / 100)
@@ -76,7 +75,7 @@ function Finanzamt:UpdateGuildBankMoney()
     if not totalMoney then return end
     
     -- Save the money value to the saved variable:
-    FinanzamtDB.totalMoney = totalMoney
+    Finanzamt.db.profile.totalMoney = totalMoney
 
     local goldAmount   = math.floor(totalMoney / 10000)
     local silverAmount = math.floor((totalMoney % 10000) / 100)
@@ -160,7 +159,7 @@ end
 -- and saving the transaction strings in FinanzamtDB.transactions.
 function Finanzamt:UpdateTransactionHistory()
     -- Clear out any previous transaction history
-    FinanzamtDB.transactions = {}
+    Finanzamt.db.profile.transactions = {}
     
     if not GuildBankFrame or not GuildBankFrame:IsShown() then
         print("[Finanzamt] Öffne die Gildenbank, um die Transaktionsdaten zu laden.")
@@ -205,13 +204,13 @@ function Finanzamt:UpdateTransactionHistory()
         end
     end
 
-    FinanzamtDB.transactions = transactions
+    Finanzamt.db.profile.transactions = transactions
 end
 
 -- Display the saved money when the main frame is shown
 function Finanzamt:DisplaySavedMoney()
-    if FinanzamtDB and FinanzamtDB.totalMoney then
-        local totalMoney = FinanzamtDB.totalMoney
+    if Finanzamt.db.profile and Finanzamt.db.profile.totalMoney then
+        local totalMoney = Finanzamt.db.profile.totalMoney
         local goldAmount   = math.floor(totalMoney / 10000)
         local silverAmount = math.floor((totalMoney % 10000) / 100)
         local copperAmount = totalMoney % 100

@@ -4,10 +4,16 @@
 ## Author: Jaluna / Matthias
 ## Version: 0.1.0
 
+## SavedVariables: FinanzamtDB
+
+
+libs\AceConsole-3.0\AceConsole-3.0.xml
+libs\AceEvent-3.0\AceEvent-3.0.xml
+libs\AceDB-3.0\AceDB-3.0.xml
 Libs/LibDataBroker-1.1/LibDataBroker-1.1.lua
 Libs/LibDBIcon-1.0/LibDBIcon-1.0.lua
 
-## SavedVariables: FinanzamtDB
+
 
 Finanzamt.lua
 Config.lua
