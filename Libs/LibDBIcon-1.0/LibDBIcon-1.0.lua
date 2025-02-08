@@ -154,6 +154,7 @@ do
 
 	local rad, cos, sin, sqrt, max, min = math.rad, math.cos, math.sin, math.sqrt, math.max, math.min
 	function updatePosition(button, position)
+		print("LIBDEBUG update position" , button, position)
 		local angle = rad(position or 225)
 		local x, y, q = cos(angle), sin(angle), 1
 		if x < 0 then q = q + 1 end
@@ -201,6 +202,7 @@ do
 		if self.db then
 			pos = deg(atan2(py - my, px - mx)) % 360
 			self.db.minimapPos = pos
+			print("LIBDEBUG position changed")
 		else
 			pos = deg(atan2(py - my, px - mx)) % 360
 			self.minimapPos = pos
@@ -249,6 +251,7 @@ local function updateCoord(self)
 end
 
 local function createButton(name, object, db, customCompartmentIcon)
+	print("LIBDEBUG create button" , name, object, db, customCompartmentIcon)
 	local button = CreateFrame("Button", "LibDBIcon10_"..name, Minimap)
 	button.dataObject = object
 	button.db = db
@@ -316,11 +319,17 @@ local function createButton(name, object, db, customCompartmentIcon)
 	animOut:SetStartDelay(1)
 	button.fadeOut:SetToFinalAlpha(true)
 
+	print("LIBDEBUG Assigning button")
+
 	lib.objects[name] = button
+
+	print("LIBDEBUG button assigned" , lib.objects[name])
+	print("LIBDEBUG lib.loggedIn:" , lib.loggedIn)
 
 	if lib.loggedIn then
 		updatePosition(button, db and db.minimapPos)
 		if not db or not db.hide then
+			print("LIBDEBUG button show")
 			button:Show()
 		else
 			button:Hide()
@@ -341,6 +350,7 @@ if not lib.loggedIn then
 		for _, button in next, lib.objects do
 			updatePosition(button, button.db and button.db.minimapPos)
 			if not button.db or not button.db.hide then
+				print("LIBDEBUG other button show")
 				button:Show()
 			else
 				button:Hide()
@@ -379,6 +389,7 @@ end
 --
 
 function lib:Register(name, object, db, customCompartmentIcon)
+	print("LIBDEBUG Register" ,name , object, db, customCompartmentIcon)
 	if not object.icon then error("Can't register LDB objects without icons set!") end
 	if lib:GetMinimapButton(name) then error(DBICON10.. ": Object '".. name .."' is already registered.") end
 	createButton(name, object, db, customCompartmentIcon)
