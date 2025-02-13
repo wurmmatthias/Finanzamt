@@ -31,6 +31,8 @@ function Finanzamt:OnInitialize()
     self.db = AceDB:New("FinanzamtDB", {
         profile = {
             totalMoney = 0,
+            totalMoneyTimestamp = 0;
+            totalPlayerMoney = 0,
             minimap = { minimapPos = 180 },
             transactions = {},
             MoneyTransactions = {}

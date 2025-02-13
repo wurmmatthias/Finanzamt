@@ -6,26 +6,34 @@ local Finanzamt = LibStub("AceAddon-3.0"):GetAddon("Finanzamt") -- Get Addon Nam
 function Finanzamt:CheckGuildBankMoneyTransaction()
     if GuildBankFrame and GuildBankFrame:IsShown() then
         local transactionValue = GetGuildBankMoney() - Finanzamt.db.profile.totalMoney
-        if transactionValue > 0 then
-            local moneyTransaction = {}
-            moneyTransaction.PlayerGUID = UnitGUID("player")
-            moneyTransaction.Action = "Deposit"
-            moneyTransaction.Value = transactionValue
-            moneyTransaction.TimeStamp = GetServerTime()
+        local playerMoneyChange = GetMoney() - Finanzamt.db.profile.totalPlayerMoney
 
-            table.insert(Finanzamt.db.profile.MoneyTransactions, moneyTransaction)
-            print("DEBUG: Es wurden ", transactionValue, " von ", UnitFullName("player"), " in die Gildenbank eingezahlt.")
+        if transactionValue ~= playerMoneyChange then
+            print("Es wurde eine Änderung am Gildenbetrag festgestellt:", transactionValue, "Diese kam aber nicht vom Spieler:", playerMoneyChange) 
+            return
         else
-            local moneyTransaction = {}
-            moneyTransaction.PlayerGUID = UnitGUID("player")
-            moneyTransaction.Action = "Withdrawal"
-            moneyTransaction.Value = transactionValue
-            moneyTransaction.TimeStamp = GetServerTime()
+            if transactionValue > 0 then
+                local moneyTransaction = {}
+                moneyTransaction.PlayerGUID = UnitGUID("player")
+                moneyTransaction.Action = "Deposit"
+                moneyTransaction.Value = transactionValue
+                moneyTransaction.TimeStamp = GetServerTime()
 
-            table.insert(Finanzamt.db.profile.MoneyTransactions, moneyTransaction)
-            print("DEBUG: Es wurden ", transactionValue, " von ", UnitFullName("player"), " aus der Gildenbank abgehoben.")
-        end    
+                table.insert(Finanzamt.db.profile.MoneyTransactions, moneyTransaction)
+                print("DEBUG: Es wurden ", transactionValue, " von ", UnitFullName("player"), " in die Gildenbank eingezahlt.")
+            else
+                local moneyTransaction = {}
+                moneyTransaction.PlayerGUID = UnitGUID("player")
+                moneyTransaction.Action = "Withdrawal"
+                moneyTransaction.Value = transactionValue
+                moneyTransaction.TimeStamp = GetServerTime()
+
+                table.insert(Finanzamt.db.profile.MoneyTransactions, moneyTransaction)
+                print("DEBUG: Es wurden ", transactionValue, " von ", UnitFullName("player"), " aus der Gildenbank abgehoben.")
+            end    
+        end
         Finanzamt:UpdateGuildBankMoneyDisplay()
+        Finanzamt.db.profile.totalPlayerMoney = GetMoney()
     end
 end
 
@@ -61,21 +69,9 @@ function Finanzamt:UpdateGuildBankMoneyDisplay()
     -- Save the money value to the saved variable:
     Finanzamt.db.profile.totalMoney = totalMoney
 
-    local goldAmount   = math.floor(totalMoney / 10000)
-    local silverAmount = math.floor((totalMoney % 10000) / 100)
-    local copperAmount = totalMoney % 100
-
-    Finanzamt.UI.GB_Gold:SetText(goldAmount)
-    Finanzamt.UI.GB_Silver :SetText(silverAmount)
-    Finanzamt.UI.GB_Copper:SetText(copperAmount)
-end
-
-function Finanzamt:UpdateGuildBankMoney()
-    local totalMoney = GetGuildBankMoney()  -- Returns money in copper
-    if not totalMoney then return end
-    
-    -- Save the money value to the saved variable:
-    Finanzamt.db.profile.totalMoney = totalMoney
+    local serverTime = GetServerTime()
+    if not serverTime then return end
+    Finanzamt.db.profile.totalMoneyTimestamp = serverTime
 
     local goldAmount   = math.floor(totalMoney / 10000)
     local silverAmount = math.floor((totalMoney % 10000) / 100)
@@ -85,7 +81,6 @@ function Finanzamt:UpdateGuildBankMoney()
     Finanzamt.UI.GB_Silver :SetText(silverAmount)
     Finanzamt.UI.GB_Copper:SetText(copperAmount)
 end
-
 
 
 function Finanzamt:UpdateGuildBankDeposits()
@@ -219,5 +214,22 @@ function Finanzamt:DisplaySavedMoney()
         Finanzamt.UI.GB_Silver :SetText(silverAmount)
         Finanzamt.UI.GB_Copper:SetText(copperAmount)
     end
+end
+
+function Finanzamt:UpdateGuildbankMoney()
+    local totalMoney = GetGuildBankMoney()  -- Returns money in copper
+    if not totalMoney then return end  
+    -- Save the money value to the saved variable:
+    Finanzamt.db.profile.totalMoney = totalMoney
+
+    local serverTime = GetServerTime()
+    if not serverTime then return end
+    Finanzamt.db.profile.totalMoneyTimestamp = serverTime
+
+
+    local totalPlayerMoney = GetMoney()  -- Returns money in copper
+    if not totalPlayerMoney then return end
+    -- Save the money value to the saved variable:
+    Finanzamt.db.profile.totalPlayerMoney = totalPlayerMoney
 end
 

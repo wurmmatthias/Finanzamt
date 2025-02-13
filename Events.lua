@@ -27,12 +27,6 @@ local playerInteractionFrame = CreateFrame("Frame")
 playerInteractionFrame:RegisterEvent("PLAYER_INTERACTION_MANAGER_FRAME_SHOW")
 playerInteractionFrame:SetScript("OnEvent", function(self, event, interactionType)
     if event and interactionType == 10 then -- 10 = GuildBank opened
-        local totalMoney = GetGuildBankMoney()  -- Returns money in copper
-        print("DEBUG: ", totalMoney)
-        if not totalMoney then return end
-        
-        -- Save the money value to the saved variable:
-        Finanzamt.db.profile.totalMoney = totalMoney
-        print("DEBUG: Guildbank money updated")
+        Finanzamt.UpdateGuildbankMoney()
     end
 end)
