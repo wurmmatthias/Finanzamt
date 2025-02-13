@@ -18,7 +18,8 @@
         "GuildBankFrameTab3",
         "GuildBankFrameTab1",
         "hash_SlashCmdList",
-        "DEFAULT_CHAT_FRAME"
+        "DEFAULT_CHAT_FRAME",
+        "message"
     ],
     "Lua.runtime.version": "Lua 5.1",
     "Lua.runtime.builtin": {

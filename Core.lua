@@ -6,10 +6,12 @@ local Finanzamt = LibStub("AceAddon-3.0"):GetAddon("Finanzamt") -- Get Addon Nam
 function Finanzamt:CheckGuildBankMoneyTransaction()
     if GuildBankFrame and GuildBankFrame:IsShown() then
         local transactionValue = GetGuildBankMoney() - Finanzamt.db.profile.totalMoney
-        local playerMoneyChange = GetMoney() - Finanzamt.db.profile.totalPlayerMoney
+        local playerMoneyChange = Finanzamt.db.profile.totalPlayerMoney - GetMoney()
+
+        Finanzamt:DebugMessage("GBM", GetGuildBankMoney(), "totalMoney:", Finanzamt.db.profile.totalMoney, "M", GetMoney(), "totalPlayerMoney", Finanzamt.db.profile.totalPlayerMoney)
 
         if transactionValue ~= playerMoneyChange then
-            print("Es wurde eine Änderung am Gildenbetrag festgestellt:", transactionValue, "Diese kam aber nicht vom Spieler:", playerMoneyChange) 
+            Finanzamt:DebugMessage("Es wurde eine Änderung am Gildenbetrag festgestellt:", transactionValue, "Diese kam aber nicht vom Spieler:", playerMoneyChange) 
             return
         else
             if transactionValue > 0 then
@@ -20,7 +22,7 @@ function Finanzamt:CheckGuildBankMoneyTransaction()
                 moneyTransaction.TimeStamp = GetServerTime()
 
                 table.insert(Finanzamt.db.profile.MoneyTransactions, moneyTransaction)
-                print("DEBUG: Es wurden ", transactionValue, " von ", UnitFullName("player"), " in die Gildenbank eingezahlt.")
+                Finanzamt:ConsoleMessage("Es wurden ", transactionValue, " von ", UnitFullName("player"), " in die Gildenbank eingezahlt.")
             else
                 local moneyTransaction = {}
                 moneyTransaction.PlayerGUID = UnitGUID("player")
@@ -29,7 +31,7 @@ function Finanzamt:CheckGuildBankMoneyTransaction()
                 moneyTransaction.TimeStamp = GetServerTime()
 
                 table.insert(Finanzamt.db.profile.MoneyTransactions, moneyTransaction)
-                print("DEBUG: Es wurden ", transactionValue, " von ", UnitFullName("player"), " aus der Gildenbank abgehoben.")
+                Finanzamt:ConsoleMessage("Es wurden ", transactionValue, " von ", UnitFullName("player"), " aus der Gildenbank abgehoben.")
             end    
         end
         Finanzamt:UpdateGuildBankMoneyDisplay()
@@ -92,7 +94,7 @@ function Finanzamt:UpdateGuildBankDeposits()
     for transactionNumber = 1, GetNumGuildBankMoneyTransactions() do
         local transactionType, playerName, amount, years, months, days, hours = GetGuildBankMoneyTransaction(transactionNumber)
 
-        print("DEBUG: Transaktion", transactionNumber, "Typ:", transactionType, "Spieler:", playerName, "Amount:", amount, "years:", years, "months:", months, "days:", days, "hours:", hours)
+        Finanzamt:DebugMessage("Transaktion", transactionNumber, "Typ:", transactionType, "Spieler:", playerName, "Amount:", amount, "years:", years, "months:", months, "days:", days, "hours:", hours)
 
         if transactionType == "deposit" then
             if amount and amount > 0 then
@@ -221,15 +223,19 @@ function Finanzamt:UpdateGuildbankMoney()
     if not totalMoney then return end  
     -- Save the money value to the saved variable:
     Finanzamt.db.profile.totalMoney = totalMoney
+    Finanzamt:DebugMessage("Updated guild money", Finanzamt.db.profile.totalMoney)
 
     local serverTime = GetServerTime()
     if not serverTime then return end
     Finanzamt.db.profile.totalMoneyTimestamp = serverTime
+
+    Finanzamt:DebugMessage("Updated serverTime", Finanzamt.db.profile.totalMoneyTimestamp)
 
 
     local totalPlayerMoney = GetMoney()  -- Returns money in copper
     if not totalPlayerMoney then return end
     -- Save the money value to the saved variable:
     Finanzamt.db.profile.totalPlayerMoney = totalPlayerMoney
+    Finanzamt:DebugMessage("Updated player money", Finanzamt.db.profile.totalPlayerMoney)
 end
 

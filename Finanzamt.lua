@@ -36,11 +36,16 @@ function Finanzamt:OnInitialize()
             minimap = { minimapPos = 180 },
             transactions = {},
             MoneyTransactions = {}
+        },
+        global = {
+            enableDebugMessages = false
         }
     }, true) -- 'true' means it will use the profile system
 
+    self.db:SetProfile(UnitName("player") .. " - " .. GetRealmName())
+
     -- Print to confirm it's working
-    self:Print("FinanzamtDB loaded! Current money:", self.db.profile.totalMoney)
+    Finanzamt:DebugMessage("FinanzamtDB loaded! Current money:", self.db.profile.totalMoney)
 end
 
 
@@ -76,9 +81,17 @@ function Finanzamt:OnEnable()
 end
 
 
+function Finanzamt:ConsoleMessage(...)
+    print("FINANZAMT:", ...)
+end
+
+function Finanzamt:DebugMessage(...)
+    if Finanzamt.db.global.enableDebugMessages then
+        print("FINANZAMT_DEBUG:", ...)
+    end
+end
 
 
-print("DEBUG: Finanzamt loaded!")
 
 
 
