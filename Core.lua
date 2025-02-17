@@ -36,6 +36,7 @@ function Finanzamt:CheckGuildBankMoneyTransaction()
         end
         Finanzamt:UpdateGuildBankMoneyDisplay()
         Finanzamt.db.profile.totalPlayerMoney = GetMoney()
+        Finanzamt:UpdateMoneyTransactionDisplay()
     end
 end
 
@@ -83,7 +84,6 @@ function Finanzamt:UpdateGuildBankMoneyDisplay()
     Finanzamt.UI.GB_Silver :SetText(silverAmount)
     Finanzamt.UI.GB_Copper:SetText(copperAmount)
 end
-
 
 function Finanzamt:UpdateGuildBankDeposits()
     if not GuildBankFrame or not GuildBankFrame:IsShown() then

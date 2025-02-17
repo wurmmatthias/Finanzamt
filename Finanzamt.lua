@@ -50,6 +50,9 @@ end
 
 
 function Finanzamt:OnEnable()
+    -- Prepare UI with stored data from SavedVariables
+    Finanzamt:UpdateMoneyTransactionDisplay()
+    
     -- Create a data broker object for the minimap icon
     local minimapButton = LDB:NewDataObject("Finanzamt", {
         type = "launcher",
@@ -62,7 +65,7 @@ function Finanzamt:OnEnable()
                     Finanzamt.UI.Main:Hide()
                 else
                     Finanzamt.UI.Main:Show()
-                    print("Letzter gespeicherter Wert (in Kupfer):", Finanzamt.db.profile.totalMoney)
+                    Finanzamt:DebugMessage("Letzter gespeicherter Wert (in Kupfer):", Finanzamt.db.profile.totalMoney)
                 end
             elseif button == "RightButton" then
                 print("Finanzamt Addon - Optionen in Kürze")

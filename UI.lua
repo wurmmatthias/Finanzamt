@@ -1,4 +1,4 @@
----@type _, Finanzamt
+---@class Finanzamt : AceAddon, AceConsole-3.0, AceEvent-3.0
 local Finanzamt = LibStub("AceAddon-3.0"):GetAddon("Finanzamt") -- Get Addon Namespace
 
 
@@ -27,17 +27,17 @@ itemTransButton:SetSize(180, 25)
 
 -- Scrollable list to display guild members and their deposits
 local scrollFrame = CreateFrame("ScrollFrame", nil, frame, "UIPanelScrollFrameTemplate")
-scrollFrame:SetSize(260, 260)
-scrollFrame:SetPoint("TOP", frame, "TOP", 0, -70)
+scrollFrame:SetSize(450, 260)
+scrollFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", 100, -70)
 
 local content = CreateFrame("Frame", nil, scrollFrame)
-content:SetSize(260, 260)
+content:SetSize(450, 260)
 scrollFrame:SetScrollChild(content)
 
 -- Create a texture for the image
 local imageTexture = frame:CreateTexture(nil, "ARTWORK")
 imageTexture:SetSize(64, 64)  -- Set the width and height (adjust as needed)
-imageTexture:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 64, 64)  -- Position in bottom left
+imageTexture:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 30, 30)  -- Position in bottom left
 imageTexture:SetTexture("Interface\\AddOns\\Finanzamt\\adler.tga") 
 
 -- Create FontStrings for displaying the guild balance
@@ -126,18 +126,126 @@ for i = 1, 30 do
     itemLines[i] = line
 end
 
-for i = 1, 20 do -- Assuming a maximum of 20 guild members displayed
-    local line = CreateFrame("Button", nil, content)
-    line:SetSize(240, 20)
-    line:SetPoint("TOPLEFT", content, "TOPLEFT", 10, -20 * (i - 1))
+function Finanzamt:UpdateMoneyTransactionDisplay()
+    for i = 1,#Finanzamt.db.profile.MoneyTransactions do
+        local line = CreateFrame("Frame", nil, content)
+        line:SetSize(400, 20)
+        line:SetPoint("TOPLEFT", content, "TOPLEFT", 10, -20 * (i - 1))
 
-    line.text = line:CreateFontString(nil, "OVERLAY")
-    line.text:SetFontObject("GameFontNormal")
-    line.text:SetPoint("LEFT")
-    line.text:SetSize(240, 20)
-    line.text:SetJustifyH("LEFT")
+        local btnTimeStamp = CreateFrame("Button", nil, line)
+        btnTimeStamp:SetSize(150, 20)
+        btnTimeStamp:SetPoint("LEFT", line, "LEFT", 0, 0)
+        btnTimeStamp.text = btnTimeStamp:CreateFontString(nil, "OVERLAY")
+        btnTimeStamp.text:SetFontObject("ChatFontNormal")
+        btnTimeStamp.text:SetPoint("LEFT")
+        btnTimeStamp.text:SetSize(150, 20)
+        btnTimeStamp.text:SetJustifyH("LEFT")
+        local timeStamp = date("%d.%m.%Y %H:%M:%S", Finanzamt.db.profile.MoneyTransactions[i].TimeStamp)
+        btnTimeStamp.text:SetText(timeStamp .. " ||")
+        line.btnTimeStamp = btnTimeStamp
 
-    Finanzamt.lines[i] = line
+        local btnMoney = CreateFrame("Button", nil, line)
+        btnMoney:SetSize(100, 20)
+        btnMoney:SetPoint("LEFT", btnTimeStamp, "RIGHT", 10, 0)
+        btnMoney.text = btnMoney:CreateFontString(nil, "OVERLAY")
+        btnMoney.text:SetFontObject("ChatFontNormal")
+        btnMoney.text:SetPoint("LEFT")
+        btnMoney.text:SetSize(100, 20)
+        btnMoney.text:SetJustifyH("RIGHT")
+        local value = C_CurrencyInfo.GetCoinTextureString(Finanzamt.db.profile.MoneyTransactions[i].Value)
+        btnMoney.text:SetText(value)
+        line.btnMoney = btnMoney
+
+        local btnAction = CreateFrame("Button", nil, line)
+        btnAction:SetSize(70, 20)
+        btnAction:SetPoint("LEFT", btnMoney, "RIGHT", 10, 0)
+        btnAction.text = btnAction:CreateFontString(nil, "OVERLAY")
+        btnAction.text:SetFontObject("ChatFontNormal")
+        btnAction.text:SetPoint("LEFT")
+        btnAction.text:SetSize(70, 20)
+        btnAction.text:SetJustifyH("LEFT")
+
+        local action = "abgehoben"
+        if Finanzamt.db.profile.MoneyTransactions[i].Action == "Deposit" then
+            action = "eingezahlt"
+        end
+        btnAction.text:SetText(action)
+        line.btnAction = btnAction
+
+        local btnComment = CreateFrame("Button", nil, line, "UIPanelButtonTemplate")
+        btnComment:SetSize(100, 20)
+        btnComment:SetPoint("LEFT", btnAction, "RIGHT", 0, 0)
+        btnComment.text = btnComment:CreateFontString(nil, "OVERLAY")
+        btnComment.text:SetFontObject("ChatFontNormal")
+        btnComment.text:SetPoint("CENTER")
+        btnComment.text:SetSize(100, 20)
+        btnComment.text:SetJustifyH("CENTER")
+        btnComment.text:SetText("Kommentar")
+        btnComment:SetScript("OnClick", function()
+            Finanzamt:CreateCommentWindow(i) -- Pass the index to edit the correct entry
+        end)
+        btnComment:RegisterForClicks("AnyDown", "AnyUp")
+        line.btnComment = btnComment
+
+        Finanzamt.lines[i] = line
+    end
+end
+
+function Finanzamt:CreateCommentWindow(index)
+    if Finanzamt.commentWindow then
+        Finanzamt.commentWindow:Hide() -- Hide previous window if it exists
+    end
+
+    -- Create the main frame (window)
+    local commentFrame = CreateFrame("Frame", "FinanzamtCommentWindow", UIParent, "BackdropTemplate")
+    commentFrame:SetSize(300, 150)
+    commentFrame:SetPoint("CENTER")
+    commentFrame:SetBackdrop({
+        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+        edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+        tile = true, tileSize = 32, edgeSize = 32,
+        insets = { left = 8, right = 8, top = 8, bottom = 8 }
+    })
+    commentFrame:SetMovable(true)
+    commentFrame:EnableMouse(true)
+    commentFrame:RegisterForDrag("LeftButton")
+    commentFrame:SetScript("OnDragStart", commentFrame.StartMoving)
+    commentFrame:SetScript("OnDragStop", commentFrame.StopMovingOrSizing)
+
+    -- Title text
+    local title = commentFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    title:SetPoint("TOP", commentFrame, "TOP", 0, -10)
+    title:SetText("Kommentar bearbeiten")
+
+    -- Input field
+    local editBox = CreateFrame("EditBox", nil, commentFrame, "InputBoxTemplate")
+    editBox:SetSize(260, 25)
+    editBox:SetPoint("TOP", commentFrame, "TOP", 0, -40)
+    editBox:SetAutoFocus(true)
+    editBox:SetText(Finanzamt.db.profile.MoneyTransactions[index].Comment or "") -- Preload value
+
+    -- Save Button
+    local btnSave = CreateFrame("Button", nil, commentFrame, "UIPanelButtonTemplate")
+    btnSave:SetSize(80, 22)
+    btnSave:SetPoint("BOTTOMLEFT", commentFrame, "BOTTOMLEFT", 20, 20)
+    btnSave:SetText("Speichern")
+    btnSave:SetScript("OnClick", function()
+        Finanzamt.db.profile.MoneyTransactions[index].Comment = editBox:GetText()
+        print("Kommentar gespeichert:", editBox:GetText())
+        commentFrame:Hide()
+    end)
+
+    -- Cancel Button
+    local btnCancel = CreateFrame("Button", nil, commentFrame, "UIPanelButtonTemplate")
+    btnCancel:SetSize(80, 22)
+    btnCancel:SetPoint("BOTTOMRIGHT", commentFrame, "BOTTOMRIGHT", -20, 20)
+    btnCancel:SetText("Abbrechen")
+    btnCancel:SetScript("OnClick", function()
+        print("Kommentar Bearbeitung abgebrochen.")
+        commentFrame:Hide()
+    end)
+
+    Finanzamt.commentWindow = commentFrame -- Store window reference
 end
 
 -- Initialization function for the dropdown menu
@@ -233,6 +341,7 @@ refreshButton:SetScript("OnClick", function()
     Finanzamt:UpdateGuildBankMoneyDisplay()
 end)
 
+
 -- Update the ItemTransFrame using the saved transaction history from FinanzamtDB.
 local function UpdateItemTransFrame()
     -- Clear all previous transaction lines
@@ -302,3 +411,10 @@ warnButton:SetScript("OnClick", function(self)
     warnFrame:Show()
     UIDropDownMenu_Initialize(recipientDropdown, InitializeRecipientDropdown) -- Refresh the list in case the guild roster has changed.
 end)
+
+
+
+--Disabled functionality that is not ready for live yet
+refreshButton:Hide()
+itemTransButton:Hide()
+warnButton:Hide()

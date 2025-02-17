@@ -30,18 +30,6 @@ eventHandlerFrame:SetScript("OnEvent", function(self, event)
     end
 end)
 
-
--- Modify the event handler to also update the transaction history
-local eventFrame = CreateFrame("Frame")
-eventFrame:RegisterEvent("GUILDBANKLOG_UPDATE")
-eventFrame:SetScript("OnEvent", function(self, event)
-    if event == "GUILDBANKLOG_UPDATE" then
-        Finanzamt:UpdateGuildBankDeposits()
-        Finanzamt:UpdateGuildBankMoneyDisplay()
-        Finanzamt:UpdateTransactionHistory()  -- update and save the full transaction history
-    end
-end)
-
 local playerInteractionFrame = CreateFrame("Frame")
 playerInteractionFrame:RegisterEvent("PLAYER_INTERACTION_MANAGER_FRAME_SHOW")
 playerInteractionFrame:SetScript("OnEvent", function(self, event, interactionType)
