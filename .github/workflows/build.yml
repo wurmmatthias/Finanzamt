@@ -1,0 +1,68 @@
+name: Build and Package Installer
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Set up Python for building
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            python -m pip install --upgrade pip
+            pip install pyinstaller
+          else
+            python3 -m pip install --upgrade pip
+            pip3 install pyinstaller
+          fi
+
+      - name: Build Python script into executable
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            pyinstaller --onefile FinanzamtCompanion.py
+          else
+            pyinstaller --onefile FinanzamtCompanion.py
+          fi
+
+      # Create the installer for the specific platform
+      - name: Package Installer for ${{ matrix.os }}
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            # Create Windows NSIS Installer
+            nsis installers/windows_installer.nsi
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            # Create Makeself Installer for macOS
+            makeself --bzip2 . FinanzamtCompanion.sh "FinanzamtCompanion Installer" ./installers/installer.sh
+          elif [[ "$RUNNER_OS" == "Linux" ]]; then
+            # Create Makeself Installer for Linux
+            makeself --bzip2 . FinanzamtCompanion.sh "FinanzamtCompanion Installer" ./installers/installer.sh
+          fi
+
+      # Upload generated installer artifacts
+      - name: Upload installer artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: myapp-installer
+          path: |
+            FinanzamtCompanion.exe      # Windows NSIS Installer
+            FinanzamtCompanion.sh       # Linux/macOS Makeself Installer
