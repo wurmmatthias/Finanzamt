@@ -25,7 +25,17 @@ frame:SetScript("OnShow", Finanzamt.DisplaySavedMoney)
 local itemTransButton = CreateFrame("Button", "FinanzamtItemTransButton", frame, "GameMenuButtonTemplate")
 itemTransButton:SetSize(180, 25)
 
--- Scrollable list to display guild members and their deposits
+-- Scrollable list to display all transactions that are still locally stored
+local scrollFrameInfo = CreateFrame("Button", nil, frame)
+scrollFrameInfo:SetSize(300, 20)
+scrollFrameInfo:SetPoint("TOPLEFT", frame, "TOPLEFT", 100, -40)
+scrollFrameInfo.text = scrollFrameInfo:CreateFontString(nil, "OVERLAY")
+scrollFrameInfo.text:SetFontObject("ChatFontNormal")
+scrollFrameInfo.text:SetPoint("LEFT")
+scrollFrameInfo.text:SetSize(300, 20)
+scrollFrameInfo.text:SetJustifyH("LEFT")
+scrollFrameInfo.text:SetText("Lokal gespeicherte Transaktionen:")
+
 local scrollFrame = CreateFrame("ScrollFrame", nil, frame, "UIPanelScrollFrameTemplate")
 scrollFrame:SetSize(450, 260)
 scrollFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", 100, -70)
