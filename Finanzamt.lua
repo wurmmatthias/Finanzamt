@@ -44,7 +44,7 @@ function Finanzamt:OnInitialize()
 
     self.db:SetProfile(UnitName("player") .. " - " .. GetRealmName())
 
-    -- Print to confirm it's working
+
     Finanzamt:DebugMessage("FinanzamtDB loaded! Current money:", self.db.profile.totalMoney)
 end
 

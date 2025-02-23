@@ -52,7 +52,7 @@ imageTexture:SetTexture("Interface\\AddOns\\Finanzamt\\adler.tga")
 
 -- Create FontStrings for displaying the guild balance
 local goldText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-goldText:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -100, 15) -- Adjusted to fit all icons
+goldText:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -110, 15) -- Adjusted to fit all icons
 goldText:SetText("0")
 
 -- Create the gold coin icon
@@ -216,6 +216,7 @@ function Finanzamt:CreateCommentWindow(index)
         tile = true, tileSize = 32, edgeSize = 32,
         insets = { left = 8, right = 8, top = 8, bottom = 8 }
     })
+    commentFrame:SetFrameStrata("DIALOG")
     commentFrame:SetMovable(true)
     commentFrame:EnableMouse(true)
     commentFrame:RegisterForDrag("LeftButton")
@@ -241,7 +242,7 @@ function Finanzamt:CreateCommentWindow(index)
     btnSave:SetText("Speichern")
     btnSave:SetScript("OnClick", function()
         Finanzamt.db.profile.MoneyTransactions[index].Comment = editBox:GetText()
-        print("Kommentar gespeichert:", editBox:GetText())
+        Finanzamt:DebugMessage("Kommentar gespeichert:", editBox:GetText())
         commentFrame:Hide()
     end)
 
@@ -251,7 +252,7 @@ function Finanzamt:CreateCommentWindow(index)
     btnCancel:SetPoint("BOTTOMRIGHT", commentFrame, "BOTTOMRIGHT", -20, 20)
     btnCancel:SetText("Abbrechen")
     btnCancel:SetScript("OnClick", function()
-        print("Kommentar Bearbeitung abgebrochen.")
+        Finanzamt:DebugMessage("Kommentar Bearbeitung abgebrochen.")
         commentFrame:Hide()
     end)
 
@@ -314,16 +315,16 @@ sendButton:SetScript("OnClick", function(self)
         -- Check if the MailFrame is open (which indicates you are at a mailbox)
         if MailFrame and MailFrame:IsShown() then
             SendMail(recipient, subject, message)
-            print("Mahnung an " .. recipient .. " per Mail gesendet.")
+            Finanzamt:DebugMessage("Mahnung an " .. recipient .. " per Mail gesendet.")
         else
             -- Send a whisper if the recipient is online.
             SendChatMessage(message, "WHISPER", nil, recipient)
-            print("Mahnung an " .. recipient .. " per Whisper gesendet.")
+            Finanzamt:DebugMessage("Mahnung an " .. recipient .. " per Whisper gesendet.")
         end
         
         warnFrame:Hide()
     else
-        print("Bitte wählen Sie einen Empfänger aus.")
+        Finanzamt:ConsoleMessage("Bitte wählen Sie einen Empfänger aus.")
     end
 end)
 
@@ -346,7 +347,7 @@ refreshButton:SetSize(180, 25)
 refreshButton:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 15, 10)
 refreshButton:SetText("Daten aktualisieren")
 refreshButton:SetScript("OnClick", function()
-    print("[Finanzamt] Lade Bankdaten....")
+    Finanzamt:ConsoleMessage("Lade Bankdaten....")
     Finanzamt:RequestGuildBankData()
     Finanzamt:UpdateGuildBankMoneyDisplay()
 end)

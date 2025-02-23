@@ -62,7 +62,7 @@ end
 
 function Finanzamt:UpdateGuildBankMoneyDisplay()
     if not GuildBankFrame or not GuildBankFrame:IsShown() then
-        print("[Finanzamt] Öffne die Gildenbank, um Daten zu laden.")
+        Finanzamt:ConsoleMessage("Öffne die Gildenbank, um Daten zu laden.")
         return
     end
 
@@ -87,7 +87,7 @@ end
 
 function Finanzamt:UpdateGuildBankDeposits()
     if not GuildBankFrame or not GuildBankFrame:IsShown() then
-        print("[Finanzamt] Öffne die Gildenbank, um die Transaktionsdaten zu laden.")
+        Finanzamt:ConsoleMessage("Öffne die Gildenbank, um die Transaktionsdaten zu laden.")
         return
     end
 
@@ -146,7 +146,7 @@ function Finanzamt:UpdateGuildBankDeposits()
     end
 
     if #sortedPlayers == 0 then
-        print("[Finanzamt] Keine Geldatransaktionen gefunden.")
+        Finanzamt:ConsoleMessage("Keine Geldatransaktionen gefunden.")
     end
 end
 
