@@ -1,7 +1,7 @@
 ## Interface: 100007
 ## Title: Finanzamt
-## Notes: Überprüft, ob alle Gildenmitglieder in diesem Monat mindestens 10.000 Gold in die Gildenbank eingezahlt haben und stellt eine GUI zur Verfügung.
-## Author: Jaluna / Matthias
+## Notes: Speichert Transaktionen mit der Gildenbank und stellt die Daten über eine Companion App der Raufasertapete Web App zur Verfügung.
+## Author: Jaluna / Matthias, Xyssa / Jonathan
 ## Version: 0.1.0
 
 ## SavedVariables: FinanzamtDB
