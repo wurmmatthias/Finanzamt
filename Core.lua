@@ -22,7 +22,7 @@ function Finanzamt:CheckGuildBankMoneyTransaction()
                 moneyTransaction.TimeStamp = GetServerTime()
 
                 table.insert(Finanzamt.db.profile.MoneyTransactions, moneyTransaction)
-                Finanzamt:ConsoleMessage("Es wurden ", transactionValue, " von ", UnitFullName("player"), " in die Gildenbank eingezahlt.")
+                Finanzamt:ConsoleMessage("Es wurden ", C_CurrencyInfo.GetCoinTextureString(transactionValue), " von ", UnitFullName("player"), " in die Gildenbank eingezahlt.")
             else
                 local moneyTransaction = {}
                 moneyTransaction.PlayerGUID = UnitGUID("player")
@@ -31,7 +31,7 @@ function Finanzamt:CheckGuildBankMoneyTransaction()
                 moneyTransaction.TimeStamp = GetServerTime()
 
                 table.insert(Finanzamt.db.profile.MoneyTransactions, moneyTransaction)
-                Finanzamt:ConsoleMessage("Es wurden ", transactionValue, " von ", UnitFullName("player"), " aus der Gildenbank abgehoben.")
+                Finanzamt:ConsoleMessage("Es wurden ", C_CurrencyInfo.GetCoinTextureString(transactionValue), " von ", UnitFullName("player"), " aus der Gildenbank abgehoben.")
             end    
         end
         Finanzamt:UpdateGuildBankMoneyDisplay()

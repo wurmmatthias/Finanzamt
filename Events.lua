@@ -10,7 +10,7 @@ eventHandlerFrame:RegisterEvent("PLAYER_MONEY") -- Fires when money of player ch
 
 local function timeoutFunction()
     if waitingForPlayerMoneyEvent then
-        Finanzamt:ConsoleMessage("PLAYER_MONEY wurde nicht registriert. Wenn du Geld in die Gildenbank eingezahlt oder abgehoben hast, bitte informiere einen zuständigen Gildenoffizier! Falls nicht, kann diese Meldung ignoriert werden!")
+        Finanzamt:DebugMessage("PLAYER_MONEY wurde nicht registriert. Wenn du Geld in die Gildenbank eingezahlt oder abgehoben hast, bitte informiere einen zuständigen Gildenoffizier! Falls nicht, kann diese Meldung ignoriert werden!")
         waitingForPlayerMoneyEvent = false
     end
 end
